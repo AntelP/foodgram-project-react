@@ -8,7 +8,4 @@ class ListCreateDestroyModelViewSet(
     viewsets.mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    """
-    A viewset that provides default `list()`, `create()`, 'destroy()' actions.
-    """
     pass
