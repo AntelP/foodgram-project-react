@@ -14,14 +14,14 @@ services:
             - ./.env
     
     frontend:
-        image: antelz92/infra_frontend_1:latest
+        image: antelz92/infra_frontend_1
         volumes:
             - ../frontend/:/app/result_build/
         depends_on:
             - db
 
     backend:
-        image: antelz92/infra_backend_1:latest
+        image: antelz92/infra_backend_1
         restart: always
         volumes:
             - static_value:/code/dj_static/
