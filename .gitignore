@@ -1,3 +1,15 @@
+data.json
+ingredients.csv
+ingredients.json
+
+node_modules/
+.vscode/
+media/
+media_backend/
+static/
+static_backend/
+infra1/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

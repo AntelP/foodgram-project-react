@@ -1,112 +1,101 @@
-# Социальная сеть для любителей Кулинарии: Foodgram (foodgram-project-react)
+# Foodgram
+Cервис для публикаций и обмена рецептами.
+
+Авторизованные пользователи могут подписываться на понравившихся авторов, добавлять рецепты в избранное, в покупки, скачивать список покупок. Неавторизованным пользователям доступна регистрация, авторизация, просмотр рецептов других пользователей.
+
+![Foodgram Workflow](https://github.com/AntelP/foodgram-project-react/actions/workflows/foodgram_workflow.yaml/badge.svg)
 
 
-## Описание
-«Продуктовый помощник» (Проект Яндекс.Практикум) Сайт является - базой кулинарных рецептов. Пользователи могут создавать свои рецепты, читать рецепты других пользователей, подписываться на интересных авторов, добавлять лучшие рецепты в избранное, а также создавать список покупок и загружать его в txt формате. Также присутствует файл docker-compose, позволяющий , быстро развернуть контейнер базы данных (PostgreSQL), контейнер проекта django + gunicorn и контейнер nginx
+## Стек технологий
+Python 3.9.7, Django 3.2.7, Django REST Framework 3.12, PostgresQL, Docker, Yandex.Cloud.
 
-## Kак запустить
-### Kлонируем проект:
-
-git clone https://github.com/ZloyBaklan/foodgram-project-react.git
-Для добавления файла .env с настройками базы данных на сервер необходимо:
-
-### Установить соединение с сервером по протоколу ssh:
-
-ssh username@84.252.142.106
-Где username - имя пользователя, под которым будет выполнено подключение к серверу.
-
-server_address - IP-адрес сервера или доменное имя.
-
-
-### В домашней директории проекта Создать папку app/:
-
-mkdir app
-В ней создать папку fodgram-project/:
-
-mkdir app/foodgram-project
-
-### В ней создать файл .env:
-
- sudo touch app/foodgram-project/.env
-### Выполнить следующую команду:
-
-sudo nano app/foodgram-project/.env
-### Пример добавляемых настроек:
-
+## Установка
+Для запуска локально, создайте файл `.env` в директории `/backend/` с содержанием:
+```
+SECRET_KEY=любой_секретный_ключ_на_ваш_выбор
+DEBUG=False
+ALLOWED_HOSTS=*,или,ваши,хосты,через,запятые,без,пробелов
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=postgres
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-DB_HOST=postgres
+POSTGRES_PASSWORD=пароль_к_базе_данных_на_ваш_выбор
+DB_HOST=bd
 DB_PORT=5432
+```
 
-## Также необходимо добавить Action secrets в репозитории на GitHub в разделе settings -> Secrets:
+#### Установка Docker
+Для запуска проекта вам потребуется установить Docker и docker-compose.
 
-DOCKER_PASSWORD - пароль от DockerHub;
-DOCKER_USERNAME - имя пользователя на DockerHub;
-HOST - ip-адрес сервера;
-SSH_KEY - приватный ssh ключ (публичный должен быть на сервере);
-Опционно:
-* TELEGRAM_TO - id своего телеграм-аккаунта (можно узнать у @userinfobot, команда /start)
-* TELEGRAM_TOKEN - токен бота (получить токен можно у @BotFather, /token, имя бота)
-## Проверка работоспособности
-Теперь если внести любые изменения в проект и выполнить:
+Для установки на ubuntu выполните следующие команды:
+```bash
+sudo apt install docker docker-compose
+```
 
-git add .
-git commit -m "..."
-git push
-Комманда git push является триггером workflow проекта. При выполнении команды git push запустится набор блоков комманд jobs (см. файл main.yaml). Последовательно будут выполнены следующие блоки:
+Про установку на других операционных системах вы можете прочитать в [документации](https://docs.docker.com/engine/install/) и [про установку docker-compose](https://docs.docker.com/compose/install/).
 
-tests - тестирование проекта на соответствие PEP8 и тестам pytest.
+### Установка проекта на сервер
+1. Скопируйте файлы из папки `/server/` на ваш сервер и `.env` файл из директории `/backend/`:
+```bash
+scp -r data/ <username>@<server_ip>:/home/<username>/
+scp backend/.env <username>@<server_ip>:/home/<username>/
+```
+2. Зайдите на сервер и настройте `server_name` в конфиге nginx на ваше доменное имя:
+```bash
+vim nginx.conf
+```
 
-build_and_push_to_docker_hub - при успешном прохождении тестов собирается образ (image) для docker контейнера и отправлятеся в DockerHub
+### Настройка проекта
+1. Запустите docker compose:
+```bash
+docker-compose up -d
+```
+2. Примените миграции:
+```bash
+docker-compose exec backend python manage.py migrate
+```
+3. Заполните базу начальными данными (необязательно):
+```bash
+docker-compose exec backend python manange.py loaddata data/fixtures.json
+```
+4. Создайте администратора:
+```bash
+docker-compose exec backend python manage.py createsuperuser
+```
+5. Соберите статику:
+```bash
+docker-compose exec backend python manage.py collectstatic
+```
 
-deploy - после отправки образа на DockerHub начинается деплой проекта на сервере. Происходит копирование следующих файлов с репозитория на сервер:
+## Как импортировать данные из своего csv файла?
+Для начала убедитесь, что первая строчка вашего csv файла совпадает с названиями полей в модели. Если на первой строчке нет названия полей или они неправильные, исправьте, прежде чем приступать к импортированию.
 
-1 docker-compose.yaml, необходимый для сборки трех контейнеров:
-  1.1 postgres - контейнер базы данных
-  1.2 web - контейнер Django приложения + wsgi-сервер gunicorn
-  1.3 nginx - веб-сервер
-2 nginx/default.conf - файл кофигурации nginx сервера
-3 static - папка со статическими файлами проекта
-После копировния происходит установка docker и docker-compose на сервере и начинается сборка и запуск контейнеров.
+### Импортирование с помощью скрипта
+1. Заходим в shell:
+```bash
+docker-compose exec backend python manage.py shell
+```
+2. Импортируем нужные модели:
+```python
+from recipes.models import Ingredient, Tags
+```
+3. Импортируем скрипт:
+```python
+from scripts.import_data import create_models
+```
 
-send_message - после сборки и запуска контейнеров происходит отправка сообщения в телеграм об успешном окончании workflow
-После выполнения вышеуказанных процедур необходимо установить соединение с сервером:
+4. Запускаем скрипт с тремя параметрами:
 
-ssh username@server_address
-Отобразить список работающих контейнеров:
+`file_path` — путь до вашего csv файла,
 
-sudo docker container ls
-### В списке контейнеров копировать CONTAINER ID контейнера username/foodgram-backend:latest (username - имя пользователя на DockerHub):
+`model` — класс модели из импортированных ранее,
 
-CONTAINER ID   IMAGE                                COMMAND                  CREATED         STATUS                       PORTS     NAMES
-8021345d9138   nginx:1.19.3                         "/docker-entrypoint.…"   7 minutes ago   Exited (0) 2 minutes ago               username_nginx_1
-d3eb395676c6   username/foodgram_backend:latest   "/entrypoint.sh /bin…"   7 minutes ago   Exited (137) 2 minutes ago             username_backend_1
-2a0bf05071ba   postgres:12.4                        "docker-entrypoint.s…"   8 minutes ago   Exited (137) 2 minutes ago             dfadeev-zld_db_1
-7caa47e8ad7e   username/foodgram_frontend:v1.0    "docker-entrypoint.s…"   8 minutes ago   Exited (0) 7 minutes ago               username_frontend_1
+`print_errors` — нужно ли распечатать каждую ошибку подробно? (```True or False```)
 
-### Выполнить вход в контейнер:
+Пример:
+```python
+create_models('../data/ingredients.csv', Ingredient, True)
+```
 
-sudo docker exec -it d3eb395676c6 bash
-Внутри контейнера выполнить миграции:
-
-python manage.py migrate
-### Также можно наполнить базу данных начальными тестовыми данными:
-
-python3 manage.py shell
->>> from django.contrib.contenttypes.models import ContentType
->>> ContentType.objects.all().delete()
->>> quit()
-python manage.py loaddata dump.json
-Теперь проекту доступна статика. В админке Django (http://<server_address>/admin) доступно управление данными. Если загрузить фикструры, то будет доступен superuser:
-
-  user: Admin
-  password: admin
-  email: admin@admin.com
-### Для создания нового суперпользователя можно выполнить команду:
-
-$ python manage.py createsuperuser
-### Для остановки и удаления контейнеров и образов на сервере:
-
-sudo docker stop $(sudo docker ps -a -q) && sudo docker rm $(sudo docker ps -a -q) && sudo docker rmi $(sudo docker images -q)
+## Документация к API
+Чтобы открыть документацию локально, запустите сервер и перейдите по ссылке:
+[http://127.0.0.1/api/docs/](http://127.0.0.1/api/docs/)
