@@ -43,6 +43,12 @@ class IngredientSerializer(ModelSerializer):
         fields = ('id', 'name', 'measurement_unit',)
 
 
+class RecipeShortReadSerializer(ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time',)
+
+
 class RecipeIngredientWriteSerializer(ModelSerializer):
     class Meta:
         model = CountOfIngredient
@@ -132,13 +138,19 @@ class RecipeWriteSerializer(ModelSerializer):
             }
         }
 
-    def validate(self, attrs):
+    def validate_cooking_time(self, attrs):
         if attrs['cooking_time'] < COOKING_TIME_MIN_VALUE:
             raise ValidationError(COOKING_TIME_MIN_ERROR)
+        return attrs
+
+    def validate_tags(self, attrs):
         if len(attrs['tags']) == 0:
             raise ValidationError(TAGS_EMPTY_ERROR)
         if len(attrs['tags']) > len(set(attrs['tags'])):
             raise ValidationError(TAGS_UNIQUE_ERROR)
+        return attrs
+
+    def validate_ingredients(self, attrs):
         if len(attrs['ingredients']) == 0:
             raise ValidationError(INGREDIENTS_EMPTY_ERROR)
         id_ingredients = []

@@ -23,6 +23,4 @@ def create_models(file_path, model, print_errors):
             except ValueError as error:
                 print_error(error, row, print_errors)
         errors = total_count - successfull
-        print('Model: {}\nSuccessfull: {}; errors: {}'.format(
-            model.__name__, successfull, errors
-        ))
+        print(f'Model: {model.__name__}\nSuccessfull: {successfull}; errors: {errors}')
