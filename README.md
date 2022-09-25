@@ -101,5 +101,5 @@ create_models('../data/ingredients.csv', Ingredient, True)
 [http://127.0.0.1/api/docs/](http://127.0.0.1/api/docs/)
 
 ## Адрес рабочего сервера
-Для доступа к продукторовму помошнику перейдите по ссылке:
+Для доступа к продукторовму помошнику перейдите по ссылке (админка: 1@1.ru 123):
 [http://antel.hopto.org](http://antel.hopto.org)
