@@ -102,4 +102,4 @@ create_models('../data/ingredients.csv', Ingredient, True)
 
 ## Адрес рабочего сервера
 Для доступа к продукторовму помошнику перейдите по ссылке:
-[http://51.250.12.226/](http://51.250.12.226/)
+[http://antel.hopto.org](http://antel.hopto.org)
